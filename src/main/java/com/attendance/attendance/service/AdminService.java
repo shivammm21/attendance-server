@@ -1,6 +1,7 @@
 package com.attendance.attendance.service;
 
 import com.attendance.attendance.dto.AdminLogin;
+import com.attendance.attendance.dto.NewTeamMember;
 import com.attendance.attendance.entity.Admin;
 import com.attendance.attendance.repository.AdminRepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,9 @@ public class AdminService {
 
     @Autowired
     private AdminRepo adminRepo;
+
+    @Autowired
+    private TeamMemberService teamMemberService;
 
     public void createAdmin(){
         Admin admin = new Admin();
@@ -28,5 +32,9 @@ public class AdminService {
             return admin.getPassword().equals(adminLogin.getPassword());
         }
         return false;
+    }
+
+    public boolean addTeamMember(NewTeamMember newTeamMember){
+        return teamMemberService.saveTeamMember(newTeamMember);
     }
 }
