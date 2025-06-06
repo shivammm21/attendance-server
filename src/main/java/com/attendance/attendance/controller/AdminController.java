@@ -3,6 +3,8 @@ package com.attendance.attendance.controller;
 import com.attendance.attendance.dto.AdminLogin;
 import com.attendance.attendance.dto.NewTeamMember;
 import com.attendance.attendance.service.AdminService;
+import com.attendance.attendance.service.TeamMemberService;
+import com.attendance.attendance.service.TokenService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,6 +21,12 @@ public class AdminController {
     @Autowired
     private AdminService adminService;
 
+    @Autowired
+    private TokenService tokenService;
+
+    @Autowired
+    private TeamMemberService teamMemberService;
+
     @PostMapping("/login")
     public ResponseEntity<?> loginAdmin(@RequestBody AdminLogin adminLogin){
 
@@ -27,6 +35,8 @@ public class AdminController {
             System.out.println(adminLogin.getEmailId());
             if(adminService.checkAdmin(adminLogin)){
                 response.put("message","Login Successful");
+                String token = tokenService.generateToken(adminLogin.getEmailId());
+                response.put("token",token);
                 response.put("User",adminLogin.getEmailId());
                 return new ResponseEntity<>(response, HttpStatus.OK);
             }
@@ -57,8 +67,12 @@ public class AdminController {
                 response.put("message","Team Member Added. "+newTeamMember.getFullName()+" have been added and send login details to "+newTeamMember.getEmail());
                 return new ResponseEntity<>(response, HttpStatus.OK);
 
-            }else {
-                response.put("message","Team Member Added Failed");
+            }else if(teamMemberService.allreadtUserExists(newTeamMember.getEmail())){
+                response.put("message","Team Member Already Exists");
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            }
+            else {
+                response.put("message","Team Member added Failed");
                 return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
 
